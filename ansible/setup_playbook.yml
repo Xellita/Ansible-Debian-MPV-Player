@@ -1,0 +1,105 @@
+---
+- name: setting up videoplayer on Debian
+  hosts: players
+  remote_user: administrator
+  become: yes
+  vars:
+    user_name: "administrator" # like in preseed.config
+
+  tasks:
+    - name: install packages
+      apt:
+        name:
+          - lxde
+          - htop
+          - mpv
+          - zenity
+          - xserver-xorg
+          - lightdm
+          - dbus-x11
+        state: present
+        update_cache: yes
+        install_recommends: no
+        force_apt_get: yes
+        cache_valid_time: 3600
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: setup lightdm autologin
+      copy:
+        dest: /etc/lightdm/lightdm.conf
+        content: |
+          [Seat:*]
+          autologin-user={{ user_name }}
+          autologin-user-timeout=0
+          user-session=LXDE
+
+    - name: creating Videos folder on desktop
+      file:
+        path: "/home/{{ user_name }}/Desktop/Videos"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0755'
+
+    - name: copy Video.sh script
+      copy:
+        dest: "/home/{{ user_name }}/Desktop/Video.sh"
+        mode: '0755'
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        content: |
+          #!/bin/bash
+          sleep 5
+          VIDEO_DIR="/home/{{ user_name }}/Desktop/Videos"
+          if [ -z "$(ls $VIDEO_DIR/*.mp4 $VIDEO_DIR/*.mkv $VIDEO_DIR/*.avi 2>/dev/null)" ]; then
+            zenity --info --text="No videos found in Desktop/Videos folder"
+            exit 1
+          fi
+          mpv --fs --shuffle --hwdec=auto "$VIDEO_DIR"/*
+
+    - name: create autostart directory
+      file:
+        path: "/home/{{ user_name }}/.config/lxsession/LXDE"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+
+    - name: setup LXDE autostart file
+      copy:
+        dest: "/home/{{ user_name }}/.config/lxsession/LXDE/autostart"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        content: |
+          @lxpanel --profile LXDE
+          @pcmanfm --desktop --profile LXDE
+          @lxterminal -e /home/{{ user_name }}/Desktop/Video.sh
+
+    - name: system service for shutdown
+      copy:
+        dest: /etc/systemd/system/shutdown-at-17.service
+        content: |
+          [Unit]
+          Description=Shutdown Computer at 17:00
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/sbin/shutdown -h now
+
+    - name: system timer for shutdown
+      copy:
+        dest: /etc/systemd/system/shutdown-at-17.timer
+        content: |
+          [Unit]
+          Description=Timer to shutdown computer at 17:00
+          [Timer]
+          OnCalendar=Mon..Fri 17:00
+          AccuracySec=1min
+          [Install]
+          WantedBy=timers.target
+
+    - name: start and enable timer
+      systemd:
+        name: shutdown-at-17.timer
+        enabled: yes
+        state: started
+        daemon_reload: yes
