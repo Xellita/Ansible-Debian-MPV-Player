@@ -92,7 +92,7 @@
           [Unit]
           Description=Timer to shutdown computer at 17:00
           [Timer]
-          OnCalendar=Mon..Fri 17:00
+          OnCalendar=*-*-* 17:00
           AccuracySec=1min
           [Install]
           WantedBy=timers.target
