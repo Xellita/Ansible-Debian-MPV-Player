@@ -10,9 +10,9 @@ A lightweight, fully automated solution to turn any PC into a dedicated video pl
 
 ## Key Features
 * **Zero-touch OS Install:** Debian installation via PXE + Preseed (no manual partitioning or user creation).
-* **Minimalist:** No heavy desktop environments. Just a bare-bones Debian with LightDM, LXDE-core, and MPV.
+* **Minimalist:** Bare-bones Debian with LightDM, LXDE-core, and MPV.
 * **Speed:** Optimized Ansible playbooks that skip recommended packages and non-interactive setup.
-* **Production Ready:** Auto-login and auto-start video script included.
+* **Production Ready:** Auto-login, auto-start video script and auto shutdown at 5 PM service with timer included.
 
 ## Project Structure
 * `/pxe` — Debian Preseed configuration for automated netboot.
@@ -55,9 +55,9 @@ A lightweight, fully automated solution to turn any PC into a dedicated video pl
 
 ## Основные особенности
 * **Автоматическая установка ОС**: установка Debian через PXE + Preseed (без ручного разбиения диска и создания учетной записи пользователя).
-* **Минимализм**: никаких тяжелых рабочих сред. Только чистый Debian с LightDM, LXDE-core и MPV.
+* **Минимализм**: чистый Debian с LightDM, LXDE-core и MPV.
 * **Скорость**: оптимизированные плейбуки Ansible, которые пропускают стандартные пакеты и неинтерактивную настройку.
-* **Готовность к автоматизированному использованию**: включены скрипты для автоматического входа в систему и автоматического запуска видео.
+* **Готовность к автоматизированному использованию**: включены скрипты для автоматического входа в систему, автоматического запуска видео и автоматического выключения сервера в 17:00.
 
 ## Структура проекта
 * `/pxe` — конфигурация Debian Preseed для автоматической загрузки по сети.
